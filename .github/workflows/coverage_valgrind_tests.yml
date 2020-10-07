@@ -1,0 +1,83 @@
+name: CMake
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - 'master'
+
+jobs: 
+  coverage_valgrind_tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04]
+    steps:
+      - name: Install dependenses
+        run: |
+          sudo apt install python3
+          sudo apt install valgrind
+          sudo apt install tree
+          pip3 install setuptools
+          pip3 install bs4
+          pip3 install lxml
+          sudo apt install lcov
+          sudo apt-get install libgtest-dev
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+          sudo cp *.a /usr/lib
+          sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a
+          sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
+          
+      - uses: actions/checkout@v2
+            
+      - name: build
+        shell: bash
+        run: |
+          mkdir DZ_1/tmp
+          cd DZ_1/tmp
+          cmake -DTESTS=ON -DENABLE_COVERAGE=ON ..
+          make
+          
+      - name: Start tests
+        shell: bash
+        run: DZ_1/tmp/mainTest
+        
+      - name: Generate rate
+        shell: bash
+        run: |
+          lcov -t "mainTest" -o mainTest.info -c -d DZ_1/tmp/CMakeFiles/
+          genhtml -o report mainTest.info
+          cp .ci/gen-html-report.py .
+          cp report/index.html .
+          /usr/bin/env python3 gen-html-report.py
+          
+      - name: Valgrind
+        run:  valgrind --tool=memcheck --leak-check=full --show-reachable=yes --errors-for-leak-kinds=all DZ_1/tmp/mainTest
+          
+      - name: cppCheck
+        run: |
+          git clone https://github.com/danmar/cppcheck.git
+          cd cppcheck/
+          make
+          ./cppcheck ../DZ_1/  
+        
+      - id: get-comment-body
+        run: |
+          body=$(cat report.txt)
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}" 
+          echo ::set-output name=body::$body
+
+      - name: Create commit comment
+        uses: peter-evans/commit-comment@v1
+        if: ${{ matrix.os == 'ubuntu-16.04' }}
+        with:
+          body: |
+            ${{ steps.get-comment-body.outputs.body }}
+            All right moves done!
