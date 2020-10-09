@@ -38,33 +38,33 @@ jobs:
       - name: build
         shell: bash
         run: |
-          mkdir DZ_1/tmp
-          cd DZ_1/tmp
+          mkdir IZ_1/tmp
+          cd IZ_1/tmp
           cmake -DTESTS=ON -DENABLE_COVERAGE=ON ..
           make
           
       - name: Start tests
         shell: bash
-        run: DZ_1/tmp/mainTest
+        run: IZ_1/tmp/mainTest
         
       - name: Generate rate
         shell: bash
         run: |
-          lcov -t "mainTest" -o mainTest.info -c -d DZ_1/tmp/CMakeFiles/
+          lcov -t "mainTest" -o mainTest.info -c -d IZ_1/tmp/CMakeFiles/
           genhtml -o report mainTest.info
           cp .ci/gen-html-report.py .
           cp report/index.html .
           /usr/bin/env python3 gen-html-report.py
           
       - name: Valgrind
-        run:  valgrind --tool=memcheck --leak-check=full --error-exitcode=1 DZ_1/tmp/mainTest
+        run:  valgrind --tool=memcheck --leak-check=full --error-exitcode=1 IZ_1/tmp/mainTest
           
       - name: cppCheck
         run: |
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
-          ./cppcheck --error-exitcode=1 ../DZ_1/  
+          ./cppcheck --error-exitcode=1 ../IZ_1/  
         
       - id: get-comment-body
         run: |
