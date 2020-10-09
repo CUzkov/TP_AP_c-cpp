@@ -57,14 +57,14 @@ jobs:
           /usr/bin/env python3 gen-html-report.py
           
       - name: Valgrind
-        run:  valgrind --tool=memcheck --leak-check=full --show-reachable=yes --errors-for-leak-kinds=all DZ_1/tmp/mainTest
+        run:  valgrind --tool=memcheck --leak-check=full DZ_1/tmp/mainTest
           
       - name: cppCheck
         run: |
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
-          ./cppcheck ../DZ_1/  
+          ./cppcheck --error-exitcode=1 ../DZ_1/  
         
       - id: get-comment-body
         run: |
