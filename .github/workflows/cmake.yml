@@ -9,7 +9,7 @@ on:
       - 'master'
 
 jobs: 
-  coverage_valgrind_tests:
+  testing:
     runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 2
