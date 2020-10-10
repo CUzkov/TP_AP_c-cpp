@@ -1,20 +1,24 @@
-#include "decimal-to-roman.hpp"
+#include "decimal-to-roman.h"
+#include <stdio.h>
 #include <stdlib.h>
 
-char* decimal_to_roman(int* const number, char* const str)
+char* decimal_to_roman(int number, int* const length)
 {
-    if (number == NULL || str == NULL) {
-        return NULL;
-    }
-
-    if (*number > 3999 || *number < 0) {
-        *number = 0;
+    if (length == NULL) {
+        char* str = (char*)calloc(1, sizeof(char));
         return str;
     }
 
-    if (*number == 0) {
+    if (number > 3999 || number < 0) {
+        *length = 0;
+        char* str = (char*)calloc(1, sizeof(char));
+        return str;
+    }
+
+    if (number == 0) {
+        char* str = (char*)calloc(2, sizeof(char));
         str[0] = 'N';
-        *number = 1;
+        *length = 1;
         return str;
     }
 
@@ -25,8 +29,14 @@ char* decimal_to_roman(int* const number, char* const str)
     // Буффер с текущим и предыдущим количеством букв
     int buffers[2] = { 0, 0 };
 
-    while (*number >= 1) {
-        buffers[0] = *number / divider;
+    char* str = (char*)calloc(15, sizeof(char));
+
+    if (!str) {
+        return NULL;
+    }
+
+    while (number >= 1) {
+        buffers[0] = number / divider;
 
         if (buffers[0] != 0) {
             if (buffers[0] == 4 && buffers[1] == 1) {
@@ -45,13 +55,14 @@ char* decimal_to_roman(int* const number, char* const str)
             }
         }
 
-        *number %= divider;
+        number %= divider;
         divider = (divider_iteration_count % 2 == 0) ? divider / 2 : divider / 5;
         divider_iteration_count++;
         buffers[1] = buffers[0];
     }
 
-    *number = mass_ptr;
+    char* str_return = (char*)realloc(str, mass_ptr);
+    *length = mass_ptr;
 
-    return str;
+    return str_return;
 }

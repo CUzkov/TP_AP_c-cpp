@@ -1,173 +1,110 @@
-#include "../lib/decimal-to-roman/decimal-to-roman.hpp"
+extern "C" {
+#include "../lib/decimal-to-roman/decimal-to-roman.h"
+}
 #include <gtest/gtest.h>
 
-TEST(decimal_to_roman, boundaryCase1)
+class TestDecimalToRoman : public ::testing::Test {
+protected:
+    void SetUp()
+    {
+    }
+    void TearDown()
+    {
+        free(str);
+    }
+    int lenth = 0;
+    char* str;
+};
+
+TEST_F(TestDecimalToRoman, boundaryCaseNine)
 {
-
-    int number = 9;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("IX", decimal_to_roman(&number, str)));
-    ASSERT_EQ(2, number);
-
-    free(str);
+    str = decimal_to_roman(9, &lenth);
+    EXPECT_EQ(0, strcmp("IX", str));
+    EXPECT_EQ(2, lenth);
 }
 
-TEST(decimal_to_roman, boundaryCase2)
+TEST_F(TestDecimalToRoman, boundaryCaseFour)
 {
-
-    int number = 4;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("IV", decimal_to_roman(&number, str)));
-    ASSERT_EQ(2, number);
-
-    free(str);
+    str = decimal_to_roman(4, &lenth);
+    EXPECT_EQ(0, strcmp("IV", str));
+    EXPECT_EQ(2, lenth);
 }
 
-TEST(decimal_to_roman, boundaryCase3)
+TEST_F(TestDecimalToRoman, boundaryCaseFourty)
 {
-
-    int number = 40;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("XL", decimal_to_roman(&number, str)));
-    ASSERT_EQ(2, number);
-
-    free(str);
+    str = decimal_to_roman(40, &lenth);
+    EXPECT_EQ(0, strcmp("XL", str));
+    EXPECT_EQ(2, lenth);
 }
 
-TEST(decimal_to_roman, boundaryCase4)
+TEST_F(TestDecimalToRoman, boundaryCaseNinety)
 {
-
-    int number = 90;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("XC", decimal_to_roman(&number, str)));
-    ASSERT_EQ(2, number);
-
-    free(str);
+    str = decimal_to_roman(90, &lenth);
+    EXPECT_EQ(0, strcmp("XC", str));
+    EXPECT_EQ(2, lenth);
 }
 
-TEST(decimal_to_roman, boundaryCase5)
+TEST_F(TestDecimalToRoman, boundaryCaseFourHundred)
 {
-
-    int number = 400;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("CD", decimal_to_roman(&number, str)));
-    ASSERT_EQ(2, number);
-
-    free(str);
+    str = decimal_to_roman(400, &lenth);
+    EXPECT_EQ(0, strcmp("CD", str));
+    EXPECT_EQ(2, lenth);
 }
 
-TEST(decimal_to_roman, boundaryCase6)
+TEST_F(TestDecimalToRoman, boundaryCaseNineHundred)
 {
-
-    int number = 900;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("CM", decimal_to_roman(&number, str)));
-    ASSERT_EQ(2, number);
-
-    free(str);
+    str = decimal_to_roman(900, &lenth);
+    EXPECT_EQ(0, strcmp("CM", str));
+    EXPECT_EQ(2, lenth);
 }
 
-TEST(decimal_to_roman, boundaryCase7)
+TEST_F(TestDecimalToRoman, boundaryCaseZero)
 {
-
-    int number = 0;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("N", decimal_to_roman(&number, str)));
-    ASSERT_EQ(1, number);
-
-    free(str);
+    str = decimal_to_roman(0, &lenth);
+    EXPECT_EQ(0, strcmp("N", str));
+    EXPECT_EQ(1, lenth);
 }
 
-TEST(decimal_to_roman, boundaryCase8)
+TEST_F(TestDecimalToRoman, boundaryCaseExceedValue)
 {
-
-    int number = 6787;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("", decimal_to_roman(&number, str)));
-    ASSERT_EQ(0, number);
-
-    free(str);
+    str = decimal_to_roman(6787, &lenth);
+    EXPECT_EQ(0, strcmp("", str));
+    EXPECT_EQ(0, lenth);
 }
 
-TEST(decimal_to_roman, mainCase1)
+TEST_F(TestDecimalToRoman, mainCaseValue1893)
 {
-
-    int number = 1893;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("MDCCCXCIII", decimal_to_roman(&number, str)));
-    ASSERT_EQ(10, number);
-
-    free(str);
+    str = decimal_to_roman(1893, &lenth);
+    EXPECT_EQ(0, strcmp("MDCCCXCIII", str));
+    EXPECT_EQ(10, lenth);
 }
 
-TEST(decimal_to_roman, mainCase2)
+TEST_F(TestDecimalToRoman, mainCaseValue278)
 {
-
-    int number = 278;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("CCLXXVIII", decimal_to_roman(&number, str)));
-    ASSERT_EQ(9, number);
-
-    free(str);
+    str = decimal_to_roman(278, &lenth);
+    EXPECT_EQ(0, strcmp("CCLXXVIII", str));
+    EXPECT_EQ(9, lenth);
 }
 
-TEST(decimal_to_roman, mainCase3)
+TEST_F(TestDecimalToRoman, mainCaseValue3001)
 {
-
-    int number = 3001;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("MMMI", decimal_to_roman(&number, str)));
-    ASSERT_EQ(4, number);
-
-    free(str);
+    str = decimal_to_roman(3001, &lenth);
+    EXPECT_EQ(0, strcmp("MMMI", str));
+    EXPECT_EQ(4, lenth);
 }
 
-TEST(decimal_to_roman, mainCase4)
+TEST_F(TestDecimalToRoman, mainCaseValue1999)
 {
-
-    int number = 1999;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("MCMXCIX", decimal_to_roman(&number, str)));
-    ASSERT_EQ(7, number);
-
-    free(str);
+    str = decimal_to_roman(1999, &lenth);
+    EXPECT_EQ(0, strcmp("MCMXCIX", str));
+    EXPECT_EQ(7, lenth);
 }
 
-TEST(decimal_to_roman, mainCase5)
+TEST_F(TestDecimalToRoman, mainCaseValue23)
 {
-
-    int number = 23;
-
-    char* str = (char*)calloc(15, sizeof(char));
-
-    ASSERT_EQ(0, strcmp("XXIII", decimal_to_roman(&number, str)));
-    ASSERT_EQ(5, number);
-
-    free(str);
+    str = decimal_to_roman(23, &lenth);
+    EXPECT_EQ(0, strcmp("XXIII", str));
+    EXPECT_EQ(5, lenth);
 }
 
 int main(int argc, char** argv)
