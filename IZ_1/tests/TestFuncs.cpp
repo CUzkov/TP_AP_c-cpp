@@ -72,6 +72,13 @@ TEST_F(TestDecimalToRoman, boundaryCaseExceedValue)
     EXPECT_EQ(0, lenth);
 }
 
+TEST_F(TestDecimalToRoman, boundaryCaseLenthNull)
+{
+    str = decimal_to_roman(678, NULL);
+    EXPECT_EQ(0, strcmp("", str));
+    EXPECT_EQ(0, lenth);
+}
+
 TEST_F(TestDecimalToRoman, mainCaseValue1893)
 {
     str = decimal_to_roman(1893, &lenth);

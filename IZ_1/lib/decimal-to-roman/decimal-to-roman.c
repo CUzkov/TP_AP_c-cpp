@@ -61,8 +61,9 @@ char* decimal_to_roman(int number, int* const length)
         buffers[1] = buffers[0];
     }
 
-    char* str_return = (char*)realloc(str, mass_ptr);
+    str = (char*)realloc(str, (mass_ptr + 1) * sizeof(char));
+
     *length = mass_ptr;
 
-    return str_return;
+    return str;
 }
