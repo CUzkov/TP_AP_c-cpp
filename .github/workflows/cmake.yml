@@ -90,7 +90,7 @@ jobs:
           genhtml -o report main.info
           cd ../..
           cp .ci/gen-html-report.py .
-          cp report/index.html .
+          cp IZ_2/tmp/report/index.html .
           /usr/bin/env python3 gen-html-report.py
           valgrind --tool=memcheck --leak-check=full --error-exitcode=1 IZ_2/tmp/mainTest
           git clone https://github.com/danmar/cppcheck.git
