@@ -32,39 +32,65 @@ jobs:
           sudo cp *.a /usr/lib
           sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a
           sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
+          chmod 777 .ci/iif.sh
           
       - uses: actions/checkout@v2
-            
-      - name: build
+      
+      - id: IZ1
+        run: |
+          result=$(.ci/iif.sh IZ_1)
+          result="${result//'%'/'%25'}"
+          result="${result//$'\n'/'%0A'}"
+          result="${result//$'\r'/'%0D'}" 
+          echo ::set-output name=result::$result
+          
+      - id: IZ2
+        run: |
+          result=$(.ci/iif.sh IZ_2)
+          result="${result//'%'/'%25'}"
+          result="${result//$'\n'/'%0A'}"
+          result="${result//$'\r'/'%0D'}" 
+          echo ::set-output name=result::$result
+          
+      - if: ${{ steps.IZ1.outputs.result == 0 }}
+        name: build_tests_gen_rate_valgrind_cppcheck
         shell: bash
         run: |
           mkdir IZ_1/tmp
           cd IZ_1/tmp
           cmake -DTESTS=ON -DENABLE_COVERAGE=ON ..
           make
-          
-      - name: Start tests
-        shell: bash
-        run: IZ_1/tmp/mainTest
-        
-      - name: Generate rate
-        shell: bash
-        run: |
+          IZ_1/tmp/mainTest
           lcov -t "mainTest" -o mainTest.info -c -d IZ_1/tmp/CMakeFiles/
           genhtml -o report mainTest.info
           cp .ci/gen-html-report.py .
           cp report/index.html .
           /usr/bin/env python3 gen-html-report.py
-          
-      - name: Valgrind
-        run:  valgrind --tool=memcheck --leak-check=full --error-exitcode=1 IZ_1/tmp/mainTest
-          
-      - name: cppCheck
-        run: |
+          valgrind --tool=memcheck --leak-check=full --error-exitcode=1 IZ_1/tmp/mainTest
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
           ./cppcheck --error-exitcode=1 ../IZ_1/  
+        
+      - if: ${{ steps.IZ2.outputs.result == 0 }}
+        name: build_tests_gen_rate_valgrind_cppcheck
+        shell: bash
+        run: |
+          mkdir IZ_2/tmp
+          cd IZ_2/tmp
+          cmake -DENABLE_COVERAGE=ON ..
+          make
+          IZ_2/tmp/mainTest
+          lcov -t "mainTest" -o mainTest.info -c -d IZ_2/tmp/CMakeFiles/
+          genhtml -o report mainTest.info
+          cp .ci/gen-html-report.py .
+          cp report/index.html .
+          /usr/bin/env python3 gen-html-report.py
+          valgrind --tool=memcheck --leak-check=full --error-exitcode=1 IZ_2/tmp/mainTest
+          git clone https://github.com/danmar/cppcheck.git
+          cd cppcheck/
+          make
+          ./cppcheck --error-exitcode=1 ../IZ_2/  
         
       - id: get-comment-body
         run: |
