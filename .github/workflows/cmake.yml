@@ -92,11 +92,10 @@ jobs:
           cp .ci/gen-html-report.py .
           cp IZ_2/tmp/report/index.html .
           /usr/bin/env python3 gen-html-report.py
-          cd IZ_2/tmp/
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
-          ./cppcheck --error-exitcode=1 ../IZ_2/
+          ./cppcheck --error-exitcode=1 .
         
       - id: get-comment-body
         run: |
