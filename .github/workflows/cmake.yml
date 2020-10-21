@@ -55,6 +55,7 @@ jobs:
         name: build_tests_gen_rate_valgrind_cppcheck
         shell: bash
         run: |
+          chmod 777 .ci/iif.sh
           mkdir IZ_1/tmp
           cd IZ_1/tmp
           cmake -DTESTS=ON -DENABLE_COVERAGE=ON ..
