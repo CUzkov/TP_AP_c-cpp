@@ -54,7 +54,7 @@ jobs:
           echo ::set-output name=result::$result
           
       - if: ${{ steps.IZ1.outputs.result == 0 }}
-        name: build_tests_gen_rate_valgrind_cppcheck
+        name: iz1-build_tests_gen_rate_valgrind_cppcheck
         shell: bash
         run: |
           mkdir IZ_1/tmp
@@ -74,7 +74,7 @@ jobs:
           ./cppcheck --error-exitcode=1 ../IZ_1/  
         
       - if: ${{ steps.IZ2.outputs.result == 0 }}
-        name: build_tests_gen_rate_valgrind_cppcheck
+        name: iz2-build_tests_gen_rate_valgrind_cppcheck
         shell: bash
         run: |
           mkdir IZ_2/tmp
@@ -83,7 +83,7 @@ jobs:
           make
           cd ..
           python3 make_file.py
-          cp text.txt /tmp
+          cp text.txt tmp/
           cd tmp 
           ./main
           lcov -t "main" -o main.info -c -d CMakeFiles/
