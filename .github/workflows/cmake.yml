@@ -93,7 +93,6 @@ jobs:
           cp IZ_2/tmp/report/index.html .
           /usr/bin/env python3 gen-html-report.py
           cd IZ_2/tmp/
-          valgrind --tool=memcheck ./main
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
