@@ -92,11 +92,11 @@ jobs:
           cp .ci/gen-html-report.py .
           cp IZ_2/tmp/report/index.html .
           /usr/bin/env python3 gen-html-report.py
-          valgrind --tool=memcheck --leak-check=full --error-exitcode=1 IZ_2/tmp/mainTest
+          valgrind --tool=memcheck --leak-check=full --error-exitcode=0 IZ_2/tmp/main
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
-          ./cppcheck --error-exitcode=1 ../IZ_2/  
+          ./cppcheck --error-exitcode=1 ../IZ_2/
         
       - id: get-comment-body
         run: |
