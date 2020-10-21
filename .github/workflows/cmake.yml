@@ -85,7 +85,7 @@ jobs:
           python3 make_file.py
           cp text.txt tmp/
           cd tmp 
-          ./main
+          ./main -t 4 -f text.txt -n 100000
           lcov -t "main" -o main.info -c -d CMakeFiles/
           genhtml -o report main.info
           cd ../..
