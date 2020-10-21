@@ -61,9 +61,10 @@ jobs:
           cd IZ_1/tmp
           cmake -DTESTS=ON -DENABLE_COVERAGE=ON ..
           make
-          mainTest
-          lcov -t "mainTest" -o mainTest.info -c -d IZ_1/tmp/CMakeFiles/
+          ./mainTest
+          lcov -t "mainTest" -o mainTest.info -c -d CMakeFiles/
           genhtml -o report mainTest.info
+          cd ../..
           cp .ci/gen-html-report.py .
           cp report/index.html .
           /usr/bin/env python3 gen-html-report.py
