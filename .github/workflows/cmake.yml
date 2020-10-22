@@ -122,6 +122,6 @@ jobs:
         with:
           body: |
             For 1kk numbers:
-            ${{ steps.iz-2-report.outputs.cmpReport }}
+            ${{ steps.iz-2-report.outputs.cmpResult }}
             ${{ steps.get-comment-body.outputs.body }}
             All right moves done!
