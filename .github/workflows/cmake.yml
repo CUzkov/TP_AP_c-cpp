@@ -32,12 +32,12 @@ jobs:
           sudo cp *.a /usr/lib
           sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a
           sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
-          chmod 777 .ci/iif.sh
           
       - uses: actions/checkout@v2
       
       - id: IZ1
         run: |
+          chmod 777 .ci/iif.sh
           result=$(.ci/iif.sh IZ_1)
           result="${result//'%'/'%25'}"
           result="${result//$'\n'/'%0A'}"
@@ -46,6 +46,7 @@ jobs:
           
       - id: IZ2
         run: |
+          chmod 777 .ci/iif.sh
           result=$(.ci/iif.sh IZ_2)
           result="${result//'%'/'%25'}"
           result="${result//$'\n'/'%0A'}"
@@ -53,16 +54,17 @@ jobs:
           echo ::set-output name=result::$result
           
       - if: ${{ steps.IZ1.outputs.result == 0 }}
-        name: build_tests_gen_rate_valgrind_cppcheck
+        name: iz1-build_tests_gen_rate_valgrind_cppcheck
         shell: bash
         run: |
           mkdir IZ_1/tmp
           cd IZ_1/tmp
           cmake -DTESTS=ON -DENABLE_COVERAGE=ON ..
           make
-          IZ_1/tmp/mainTest
-          lcov -t "mainTest" -o mainTest.info -c -d IZ_1/tmp/CMakeFiles/
+          ./mainTest
+          lcov -t "mainTest" -o mainTest.info -c -d CMakeFiles/
           genhtml -o report mainTest.info
+          cd ../..
           cp .ci/gen-html-report.py .
           cp report/index.html .
           /usr/bin/env python3 gen-html-report.py
@@ -72,26 +74,39 @@ jobs:
           make
           ./cppcheck --error-exitcode=1 ../IZ_1/  
         
-      - if: ${{ steps.IZ2.outputs.result == 0 }}
-        name: build_tests_gen_rate_valgrind_cppcheck
+      - id: iz-2-report
+        if: ${{ steps.IZ2.outputs.result == 0 }}
+        name: iz2-build_tests_gen_rate_valgrind_cppcheck
         shell: bash
         run: |
           mkdir IZ_2/tmp
           cd IZ_2/tmp
-          cmake -DENABLE_COVERAGE=ON ..
+          cmake -DENABLE_COVERAGE=ON -DTESTS=ON ..
           make
-          IZ_2/tmp/mainTest
-          lcov -t "mainTest" -o mainTest.info -c -d IZ_2/tmp/CMakeFiles/
+          cd ..
+          python3 make_file.py
+          cp text.txt tmp/
+          cd tmp 
+          ./mainTest
+          lcov -t "mainTest" -o mainTest.info -c -d CMakeFiles/
           genhtml -o report mainTest.info
+          cd ../..
           cp .ci/gen-html-report.py .
-          cp report/index.html .
+          cp IZ_2/tmp/report/index.html .
           /usr/bin/env python3 gen-html-report.py
-          valgrind --tool=memcheck --leak-check=full --error-exitcode=1 IZ_2/tmp/mainTest
+          cd IZ_2/tmp/
+          cmake -DENABLE_COVERAGE=OFF -DTESTS=OFF ..
+          make
+          cmpResult=$(./main -t 4 -f text.txt -n 200000000)
+          cmpResult="${cmpResult//'%'/'%25'}"
+          cmpResult="${cmpResult//$'\n'/'%0A'}"
+          cmpResult="${cmpResult//$'\r'/'%0D'}" 
+          echo ::set-output name=cmpResult::$cmpResult
+          cd ../..
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
-          ./cppcheck --error-exitcode=1 ../IZ_2/  
-        
+          ./cppcheck --error-exitcode=1 ../IZ_2/
       - id: get-comment-body
         run: |
           body=$(cat report.txt)
@@ -99,11 +114,12 @@ jobs:
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
           echo ::set-output name=body::$body
-
       - name: Create commit comment
         uses: peter-evans/commit-comment@v1
         if: ${{ matrix.os == 'ubuntu-16.04' }}
         with:
           body: |
+            For 1kk numbers:
+            ${{ steps.iz-2-report.outputs.cmpResult }}
             ${{ steps.get-comment-body.outputs.body }}
             All right moves done!
