@@ -74,30 +74,39 @@ jobs:
           make
           ./cppcheck --error-exitcode=1 ../IZ_1/  
         
-      - if: ${{ steps.IZ2.outputs.result == 0 }}
+      - id: iz-2-report
+        if: ${{ steps.IZ2.outputs.result == 0 }}
         name: iz2-build_tests_gen_rate_valgrind_cppcheck
         shell: bash
         run: |
           mkdir IZ_2/tmp
           cd IZ_2/tmp
-          cmake -DENABLE_COVERAGE=ON ..
+          cmake -DENABLE_COVERAGE=ON -DTESTS=ON ..
           make
           cd ..
           python3 make_file.py
           cp text.txt tmp/
           cd tmp 
-          ./main -t 4 -f text.txt -n 1000000
-          lcov -t "main" -o main.info -c -d CMakeFiles/
-          genhtml -o report main.info
+          ./mainTest
+          lcov -t "mainTest" -o mainTest.info -c -d CMakeFiles/
+          genhtml -o report mainTest.info
           cd ../..
           cp .ci/gen-html-report.py .
           cp IZ_2/tmp/report/index.html .
           /usr/bin/env python3 gen-html-report.py
+          cd IZ_2/tmp/
+          cmake ..
+          cmpResult = $(./main -t 4 -f text.txt -n 1000000)
+          cmpResult="${cmpResult//'%'/'%25'}"
+          cmpResult="${cmpResult//$'\n'/'%0A'}"
+          cmpResult="${cmpResult//$'\r'/'%0D'}" 
+          echo ::set-output name=body::$cmpResult
+          cd ../..
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
           make
           ./cppcheck --error-exitcode=1 ../IZ_2/
-        
+
       - id: get-comment-body
         run: |
           body=$(cat report.txt)
@@ -111,5 +120,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-16.04' }}
         with:
           body: |
+            For 1kk numbers:
+            ${{ steps.iz-2-report.outputs.cmpReport }}
             ${{ steps.get-comment-body.outputs.body }}
             All right moves done!
