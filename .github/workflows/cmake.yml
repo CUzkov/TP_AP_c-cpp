@@ -98,7 +98,7 @@ jobs:
           cmake -DENABLE_COVERAGE=OFF -DTESTS=OFF ..
           make
           touch cmp.txt
-          ./main -t 4 -f text.txt -n 1000000 > cmp.txt
+          ./main -t 4 -f text.txt -n 200000000 > cmp.txt
           cmpResult=$(cat cmp.txt)
           cat cmp.txt
           cmpResult="${cmpResult//'%'/'%25'}"
