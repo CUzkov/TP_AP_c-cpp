@@ -95,7 +95,7 @@ jobs:
           cp IZ_2/tmp/report/index.html .
           /usr/bin/env python3 gen-html-report.py
           cd IZ_2/tmp/
-          cmake ..
+          cmake -DENABLE_COVERAGE=OFF -DTESTS=OFF ..
           make
           cmpResult = $(./main -t 4 -f text.txt -n 1000000)
           cmpResult="${cmpResult//'%'/'%25'}"
