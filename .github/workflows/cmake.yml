@@ -97,7 +97,7 @@ jobs:
           cd IZ_2/tmp/
           cmake -DENABLE_COVERAGE=OFF -DTESTS=OFF ..
           make
-          cmpResult = $(./main -t 4 -f text.txt -n 1000000)
+          cmpResult=$(./main -t 4 -f text.txt -n 1000000)
           cmpResult="${cmpResult//'%'/'%25'}"
           cmpResult="${cmpResult//$'\n'/'%0A'}"
           cmpResult="${cmpResult//$'\r'/'%0D'}" 
