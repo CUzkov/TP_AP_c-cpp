@@ -104,7 +104,7 @@ jobs:
           cmpResult="${cmpResult//'%'/'%25'}"
           cmpResult="${cmpResult//$'\n'/'%0A'}"
           cmpResult="${cmpResult//$'\r'/'%0D'}" 
-          echo ::set-output name=body::$cmpResult
+          echo ::set-output name=cmpResult::$cmpResult
           cd ../..
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
