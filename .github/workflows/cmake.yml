@@ -86,7 +86,8 @@ jobs:
           cd ..
           python3 make_file.py
           cp text.txt tmp/
-          cd tmp 
+          cd tmp
+          valgrind --tool=memcheck ./mainTest
           ./mainTest
           lcov -t "mainTest" -o mainTest.info -c -d CMakeFiles/
           genhtml -o report mainTest.info
@@ -102,6 +103,7 @@ jobs:
           cmpResult="${cmpResult//$'\n'/'%0A'}"
           cmpResult="${cmpResult//$'\r'/'%0D'}" 
           echo ::set-output name=cmpResult::$cmpResult
+          valgrind --tool=memcheck ./main -n 200000000 -t 4 -f text.txt
           cd ../..
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck/
