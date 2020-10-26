@@ -11,6 +11,29 @@ extern int optind, opterr, optopt;
 
 #define TEN_KK 10000000
 
+int load_file(char* file_path, int* mass, size_t position, size_t count) {
+    
+    FILE* file = fopen(file_path, "r");
+
+    if (file == NULL) {
+        return -1;
+    }
+
+    for (int j = 0; j < count; j++) {
+        int buffer = 0;
+        if (!fscanf(file, "%d", &buffer)) {
+            return -1;
+        }
+        mass[j] = buffer;
+    }
+
+    if (fclose(file) != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 int main(int argc, char** argv)
 {
     char* opts = "t:n:f:";
@@ -70,11 +93,10 @@ int main(int argc, char** argv)
     void* library = 0;
     ssize_t* (*counting_sums_p)(int* mass_numbers, size_t mass_length, size_t threads_number);
 
-    // dlopen течёт по памяти (still reachable)
-    library = dlopen("./libC_N_P.so", RTLD_NOW);
+    library = dlopen("./libCOUNTING_NUMBERS_THREADS.so", RTLD_NOW);
 
     if (!library) {
-        printf("%s", "Not found libC_N_P.so");
+        printf("%s", "Библиотека libCOUNTING_NUMBERS_THREADS.so не найдена");
         return EXIT_FAILURE;
     }
 
@@ -85,14 +107,6 @@ int main(int argc, char** argv)
     float times[2] = {0, 0};
     const int number_of_iters = (numbers_number / TEN_KK + 1);
     int* mass_numbers;
-    FILE* file_with_number = fopen(file_path, "r");
-
-    if (file_with_number == NULL) {
-        if (!puts("No such file or directory\n")) {
-            return EXIT_FAILURE;
-        }
-        return EXIT_FAILURE;
-    }
 
     long l1dcls = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
     size_t numbers_in_iter = ((number_of_iters == 1) ? numbers_number : TEN_KK);
@@ -112,12 +126,13 @@ int main(int argc, char** argv)
         numbers_in_iter = ((i == number_of_iters) ? numbers_number - TEN_KK * i : TEN_KK);
         numbers_in_iter = ((number_of_iters == 1) ? numbers_number : TEN_KK);
 
-        for (int j = 0; j < numbers_in_iter; j++) {
-            int buffer = 0;
-            if (!fscanf(file_with_number, "%d", &buffer)) {
+        int errflag = load_file(file_path, mass_numbers, TEN_KK * i, numbers_in_iter);
+
+        if (errflag == -1) {
+            if (!puts("Ошибка причтении или открытии файла")) {
                 return EXIT_FAILURE;
             }
-            mass_numbers[j] = buffer;
+            return EXIT_FAILURE;
         }
 
         if (clock_gettime(_POSIX_MONOTONIC_CLOCK, &start) == -1) {
@@ -156,15 +171,21 @@ int main(int argc, char** argv)
 
         times[1] += elapsed;
 
+        if (
+            mass_c[0] != mass_p[0] &&
+            mass_c[1] != mass_p[1]
+        ) {
+            if (!puts("Промежуточные значения сумм для разных алгоритмов не совпадают.")) {
+                return EXIT_FAILURE;
+            }
+            return EXIT_FAILURE;
+        }
+
         free(mass_p);
         free(mass_c);
     }
 
     free(mass_numbers);
-
-    if (0 != fclose(file_with_number)) {
-        return EXIT_FAILURE;
-    };
 
     printf("Многопоточная реализация: %fs\n", times[0]);
     printf("Сумма чётный и нечётных чисел соответственно: %zu %zu\n", sum_mass_p[0], sum_mass_p[1]);
