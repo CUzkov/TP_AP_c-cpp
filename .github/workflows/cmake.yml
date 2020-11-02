@@ -106,7 +106,6 @@ jobs:
           cd cppcheck/
           make
           ./cppcheck --error-exitcode=1 ../IZ_2/
-
       - id: get-comment-body
         run: |
           body=$(cat report.txt)
@@ -114,7 +113,6 @@ jobs:
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
           echo ::set-output name=body::$body
-
       - name: Create commit comment
         uses: peter-evans/commit-comment@v1
         if: ${{ matrix.os == 'ubuntu-16.04' }}
